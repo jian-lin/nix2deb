@@ -1,0 +1,8 @@
+#+begin_src bash
+  nix shell nixpkgs#binutils
+  nix run github:jian-lin/nix2deb -- --nix-out-path $(nix build github:jian-lin/nix2deb --print-out-paths --no-link)
+#+end_src
+
+#+begin_src bash
+  nix run github:jian-lin/nix2deb -- --help
+#+end_src

@@ -11,35 +11,53 @@ category: Distribution
 build-type: Simple
 extra-doc-files: CHANGELOG.md
 
+common defaults
+  build-depends:
+    base ^>=4.19.2.0,
+    relude ^>=1.2.2.0,
+
+  default-extensions:
+    BlockArguments
+    DerivingStrategies
+    NoImplicitPrelude
+    OverloadedStrings
+
 common warnings
   ghc-options: -Wall
 
 library
-  import: warnings
-  exposed-modules: MyLib
+  import: defaults, warnings
+  exposed-modules:
+    Nix2Deb
+    Nix2Deb.Types
+
   build-depends:
-    base ^>=4.19.2.0,
+    extra ^>=1.7.16,
     scalpel ^>=0.6.2.2,
+    string-interpolate ^>=0.3.4.0,
+    typed-process ^>=0.2.12.0,
+    unordered-containers ^>=0.2.20,
 
   hs-source-dirs: src
   default-language: GHC2021
 
 executable nix2deb
-  import: warnings
+  import: defaults, warnings
   main-is: Main.hs
   build-depends:
-    base ^>=4.19.2.0,
     nix2deb,
+    optparse-applicative ^>=0.18.1.0,
+    uncaught-exception ^>=0.1.0,
 
   hs-source-dirs: app
   default-language: GHC2021
+  ghc-options: -threaded
 
 test-suite nix2deb-test
-  import: warnings
+  import: defaults, warnings
   default-language: GHC2021
   type: exitcode-stdio-1.0
   hs-source-dirs: test
   main-is: Main.hs
   build-depends:
-    base ^>=4.19.2.0,
-    nix2deb,
+    nix2deb

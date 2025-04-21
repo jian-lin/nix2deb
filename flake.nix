@@ -55,6 +55,11 @@
                   };
                 in
                 hfinal.callCabal2nix projectName src { };
+              cabal-gild-multi-file-wrapper = final.writeShellApplication {
+                name = "cabal-gild-multi-file-wrapper";
+                runtimeInputs = [ hfinal.cabal-gild ];
+                text = ''for file in "''${@}"; do cabal-gild --io "$file"; done'';
+              };
             }
           );
         });
@@ -68,19 +73,22 @@
       devShells.${system}.default = haskellPackages.shellFor {
         packages = hpkgs: [ hpkgs.${projectName} ];
         nativeBuildInputs = with haskellPackages; [
-          cabal-gild
+          cabal-gild # needed by HLS
           cabal-install
           ghcid
           haskell-language-server
           (pkgs.nixfmt-tree.override {
+            runtimeInputs = [
+              cabal-gild-multi-file-wrapper
+              ormolu
+            ];
             settings = {
               formatter = {
                 cabal-gild = {
-                  command = "cabal-gild";
-                  options = [ "--io" ];
+                  command = "cabal-gild-multi-file-wrapper";
                   includes = [
                     "*.cabal"
-                    "cabal.project"
+                    "cabal.project*"
                   ];
                 };
                 ormolu = {
