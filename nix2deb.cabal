@@ -1,0 +1,45 @@
+cabal-version: 3.0
+name: nix2deb
+version: 0.1.0.0
+synopsis: Convert a Nix pkg to a deb pkg using other deb pkgs as dependencies.
+homepage: https://github.com/jian-lin/nix2deb
+license: AGPL-3.0-or-later
+license-file: LICENSE
+author: Lin Jian
+maintainer: me@linj.tech
+category: Distribution
+build-type: Simple
+extra-doc-files: CHANGELOG.md
+
+common warnings
+  ghc-options: -Wall
+
+library
+  import: warnings
+  exposed-modules: MyLib
+  build-depends:
+    base ^>=4.19.2.0,
+    scalpel ^>=0.6.2.2,
+
+  hs-source-dirs: src
+  default-language: GHC2021
+
+executable nix2deb
+  import: warnings
+  main-is: Main.hs
+  build-depends:
+    base ^>=4.19.2.0,
+    nix2deb,
+
+  hs-source-dirs: app
+  default-language: GHC2021
+
+test-suite nix2deb-test
+  import: warnings
+  default-language: GHC2021
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Main.hs
+  build-depends:
+    base ^>=4.19.2.0,
+    nix2deb,

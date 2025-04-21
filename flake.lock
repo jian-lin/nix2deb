@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1744849170,
+        "narHash": "sha256-bJocEHqLzDv3C7ZxOW+ppdY5aJJZZ1/T0s48KXhrfXU=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "73a1ced090549534c1c725ced2a1ca19e9a53465",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "haskell-updates",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
