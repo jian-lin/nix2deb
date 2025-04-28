@@ -7,7 +7,8 @@ import Options.Applicative as O
 import Relude
 
 data Options = Options
-  { nixOutPath :: File
+  { nixOutPath :: File,
+    nixEvalCommand :: NixEvalCommand
   }
 
 parseCliOptions :: IO Options
@@ -19,7 +20,7 @@ parseCliOptions =
     )
 
 optionsParser :: Parser Options
-optionsParser = Options <$> nixOutPathParser
+optionsParser = Options <$> nixOutPathParser <*> nixEvalCommandParser
 
 nixOutPathParser :: Parser File
 nixOutPathParser =
@@ -30,8 +31,18 @@ nixOutPathParser =
         <> O.help "Output path of nix build such as ./result"
     )
 
+nixEvalCommandParser :: Parser NixEvalCommand
+nixEvalCommandParser =
+  NixEvalCommand
+    <$> O.strOption
+      ( O.long "nix-eval-command"
+          <> O.short 'e'
+          <> O.metavar "NIX-EVAL-COMMAND"
+          <> O.help "Nix eval command for your derivation such as 'nix eval .#myPkg'"
+      )
+
 main :: IO ()
 main = do
   setDisplayExceptionHandler
-  Options {nixOutPath} <- parseCliOptions
-  Nix2Deb.demo nixOutPath
+  Options {nixOutPath, nixEvalCommand} <- parseCliOptions
+  Nix2Deb.demo nixOutPath nixEvalCommand

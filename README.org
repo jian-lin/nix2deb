@@ -1,7 +1,21 @@
+* Test
+
 #+begin_src bash
-  nix shell nixpkgs#binutils
-  nix run github:jian-lin/nix2deb -- --nix-out-path $(nix build github:jian-lin/nix2deb --print-out-paths --no-link)
+  # produce a deb pkg from a nix pkg
+  nix run github:jian-lin/nix2deb -- --nix-out-path $(nix build github:jian-lin/nix2deb#testExe --print-out-paths --no-link) --nix-eval-command 'nix eval github:jian-lin/nix2deb#testExe'
+
+  # copy test-exe.deb to Ubuntu
+  # then run following commands on Ubuntu
+
+  # install
+  sudo apt install ./test-exe.deb
+  # run and it works
+  test-exe
+  # optional: uninstall
+  sudo apt remove test-exe && sudo apt autoremove
 #+end_src
+
+* Usage
 
 #+begin_src bash
   nix run github:jian-lin/nix2deb -- --help

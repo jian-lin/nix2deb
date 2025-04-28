@@ -65,10 +65,60 @@
         });
       };
       packages.${system} = {
-        default = pkgs.lib.getBin self.packages.${system}.all;
-        all = haskellPackages.generateOptparseApplicativeCompletions [
+        default = self.packages.${system}.wrappedBin;
+        bin = haskellPackages.generateOptparseApplicativeCompletions [
           projectName
-        ] (pkgs.haskell.lib.compose.enableSeparateBinOutput haskellPackages.${projectName});
+        ] (pkgs.haskell.lib.compose.justStaticExecutables haskellPackages.${projectName});
+        wrappedBin = pkgs.haskell.lib.compose.overrideCabal (old: {
+          # nativeBuildInputs = old.nativeBuildInputs or [ ] ++ [ pkgs.makeWrapper ];
+          executableToolDepends = old.executableToolDepends or [ ] ++ [ pkgs.makeWrapper ];
+          postInstall =
+            old.postInstall or ""
+            + "\n"
+            + ''
+              wrapProgram "$out/bin/${projectName}" --suffix PATH : "${
+                pkgs.lib.makeBinPath [
+                  pkgs.binutils
+                  pkgs.dpkg
+                  pkgs.patchelf
+                ]
+              }"
+            '';
+        }) self.packages.${system}.bin;
+        testExe = pkgs.stdenv.mkDerivation {
+          pname = "test-exe";
+          version = "0.1.0";
+
+          src = pkgs.emptyDirectory;
+
+          buildInputs = [ pkgs.libev ];
+
+          postBuild = ''
+            cat > test-exe.c <<'EOF'
+            #include <stdio.h>
+
+            #include <ev.h>
+
+            int
+            main (void)
+            {
+              printf ("libev version: %d.%d\n", ev_version_major (), ev_version_minor ());
+              printf ("fn addr: %p\n", (void *) ev_invoke);
+              return 0;
+            }
+            EOF
+            $CC -o test-exe -lev test-exe.c
+          '';
+
+          postInstall = ''
+            install -D -t $out/bin test-exe
+          '';
+
+          meta = {
+            description = "Test executable for nix2deb";
+            maintainers = [ pkgs.lib.maintainers.linj ];
+          };
+        };
       };
       devShells.${system}.default = haskellPackages.shellFor {
         packages = hpkgs: [ hpkgs.${projectName} ];
