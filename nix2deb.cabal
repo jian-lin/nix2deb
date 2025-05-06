@@ -1,7 +1,7 @@
 cabal-version: 3.0
 name: nix2deb
 version: 0.1.0.0
-synopsis: Convert a Nix pkg to a deb pkg using other deb pkgs as dependencies.
+synopsis: Convert a Nix package to a deb package using other deb packages as dependencies.
 homepage: https://github.com/jian-lin/nix2deb
 license: AGPL-3.0-or-later
 license-file: LICENSE
@@ -14,6 +14,7 @@ extra-doc-files: CHANGELOG.md
 common defaults
   build-depends:
     base ^>=4.19.2.0,
+    co-log ^>=0.6.1.2,
     relude ^>=1.2.2.0,
 
   default-extensions:
@@ -29,7 +30,10 @@ library
   import: defaults, warnings
   exposed-modules:
     Nix2Deb
+    Nix2Deb.App
     Nix2Deb.Deb
+    Nix2Deb.Effects
+    Nix2Deb.Exceptions
     Nix2Deb.Map
     Nix2Deb.Nix
     Nix2Deb.Types
@@ -38,9 +42,12 @@ library
     directory ^>=1.3.8.5,
     extra ^>=1.7.16,
     filepath ^>=1.4.301.0,
+    safe-exceptions ^>=0.1.7.4,
     scalpel ^>=0.6.2.2,
     string-interpolate ^>=0.3.4.0,
+    tagsoup ^>=0.14.8,
     typed-process ^>=0.2.12.0,
+    unliftio ^>=0.2.25.1,
     unordered-containers ^>=0.2.20,
 
   hs-source-dirs: src
@@ -49,6 +56,10 @@ library
 executable nix2deb
   import: defaults, warnings
   main-is: Main.hs
+  other-modules:
+    Main.Cli
+    Main.Log
+
   build-depends:
     nix2deb,
     optparse-applicative ^>=0.18.1.0,

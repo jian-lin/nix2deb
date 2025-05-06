@@ -1,48 +1,33 @@
 module Main where
 
+import Colog (HasLog (..), LogAction, Message)
 import Control.Exception.Uncaught (setDisplayExceptionHandler)
-import Nix2Deb qualified
+import Main.Cli (parseCliOptions)
+import Main.Log (mkLogAction)
+import Nix2Deb (app)
+import Nix2Deb.App (run)
 import Nix2Deb.Types
-import Options.Applicative as O
 import Relude
 
-data Options = Options
-  { nixOutPath :: File,
-    nixEvalCommand :: NixEvalCommand
+data Env m = Env
+  { envLogAction :: LogAction m Message,
+    envCliOptions :: Options
   }
 
-parseCliOptions :: IO Options
-parseCliOptions =
-  O.execParser
-    ( O.info
-        (O.helper <*> optionsParser)
-        (O.progDesc "Convert a Nix pkg to a deb pkg using other deb pkgs as dependencies")
-    )
+instance HasLog (Env m) Message m where
+  getLogAction = envLogAction
+  {-# INLINE getLogAction #-}
+  setLogAction newLogAction env = env {envLogAction = newLogAction}
+  {-# INLINE setLogAction #-}
 
-optionsParser :: Parser Options
-optionsParser = Options <$> nixOutPathParser <*> nixEvalCommandParser
-
-nixOutPathParser :: Parser File
-nixOutPathParser =
-  O.strOption
-    ( O.long "nix-out-path"
-        <> O.short 'p'
-        <> O.metavar "NIX-OUT-PATH"
-        <> O.help "Output path of nix build such as ./result"
-    )
-
-nixEvalCommandParser :: Parser NixEvalCommand
-nixEvalCommandParser =
-  NixEvalCommand
-    <$> O.strOption
-      ( O.long "nix-eval-command"
-          <> O.short 'e'
-          <> O.metavar "NIX-EVAL-COMMAND"
-          <> O.help "Nix eval command for your derivation such as 'nix eval .#myPkg'"
-      )
+instance HasCliOptions (Env m) where
+  getCliOptions = envCliOptions
+  {-# INLINE getCliOptions #-}
 
 main :: IO ()
 main = do
   setDisplayExceptionHandler
-  Options {nixOutPath, nixEvalCommand} <- parseCliOptions
-  Nix2Deb.demo nixOutPath nixEvalCommand
+  cliOptions <- parseCliOptions
+  let logAction = mkLogAction (logLevel cliOptions)
+      env = Env logAction cliOptions
+  run app env

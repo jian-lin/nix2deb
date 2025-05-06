@@ -1,83 +1,80 @@
 {-# LANGUAGE QuasiQuotes #-}
 
+-- | This module is about generating deb packages.
 module Nix2Deb.Deb
-  ( generateDeb,
+  ( generateDebPackage,
   )
 where
 
+import Colog (Message, WithLog, logDebug)
 import Data.String.Interpolate (i, __i)
 import Data.Text qualified as T
+import Nix2Deb.Effects (ExternProcessEffect (..), FileSystemEffect (..))
 import Nix2Deb.Types
 import Relude
-import System.Directory (createDirectoryIfMissing, doesDirectoryExist, removeDirectoryRecursive, renameDirectory)
-import System.Directory.Extra (listFilesRecursive)
 import System.FilePath ((</>))
-import System.IO.Extra (withTempDir)
-import System.Process.Typed (proc, runProcess, runProcess_)
 
-generateDeb ::
+generateDebPackage ::
+  ( Monad m,
+    FileSystemEffect m,
+    ExternProcessEffect m,
+    WithLog env Message m
+  ) =>
   DebPackageName ->
   DebVersion ->
   DebMaintainer ->
   DebArch ->
   DebDescription ->
-  DebDependedPkgs ->
-  File ->
-  IO File
-generateDeb
+  [DebDependencyPackage] ->
+  NixPackageOutputDirectory ->
+  m DebPackage
+generateDebPackage
   packageName
   version
   maintainer
   arch
   description
-  (DebDependedPkgs dependedPkgs)
-  nixOutPath = withTempDir $ \workingDir -> do
-    putTextLn [i|workingDir is #{workingDir}|]
-    putTextLn [i|write meta info|]
+  debDependencyPackages
+  nixPackageOutputDirectory = withTempDirectoryEff "/tmp" "nix2deb-" \workingDir -> do
+    logDebug [i|working directory is #{workingDir}|]
+    logDebug "write meta info"
     let debianDir = workingDir </> "DEBIAN"
-        version' :: Text = [i|#{toText version}-1|]
-        maintainer' = toText maintainer -- TODO translate maintainer from nix to deb
-        dependencies = T.intercalate ", " $ toText <$> dependedPkgs
-    createDirectoryIfMissing True debianDir
-    writeFileText
+        dependencies = T.intercalate ", " $ display . ddpPackage <$> debDependencyPackages
+    createDirectoryIfMissingEff True debianDir
+    -- TODO handle invalid deb version
+    writeFileTextEff
       (debianDir </> "control")
       [__i|
-        Package: #{toText packageName}
-        Version: #{version'}
-        Maintainer: #{maintainer'}
-        Architecture: #{toString arch}
-        Description: #{toText description}
+        Package: #{display packageName}
+        Version: #{display version}-1
+        Maintainer: #{display maintainer}
+        Architecture: #{display arch}
+        Description: #{display description}
         Depends: #{dependencies}\n
       |]
-    debControl <- readFile (debianDir </> "control")
-    putTextLn
-      [__i|
-        deb control file:
-        #{debControl}
-      |]
-    -- TODO find a easy-to-use file/dir lib to remove cp
-    -- write actual pkg files
+    logDebug "copy/write actual pkg files"
     let usrDir = workingDir </> "usr"
-    createDirectoryIfMissing True usrDir
-    runProcess_ [i|cp -r #{toString nixOutPath}/* #{usrDir}|]
+    createDirectoryIfMissingEff True usrDir
+    -- TODO switch to native hs
+    (_output, _err) <- readProcessShellEff_ [i|cp -r #{display nixPackageOutputDirectory}/* #{usrDir}|]
     let nixSupportDir = usrDir </> "nix-support"
-    whenM (doesDirectoryExist nixSupportDir)
-      $ removeDirectoryRecursive nixSupportDir
+    whenM (doesDirectoryExistEff nixSupportDir)
+      $ removeDirectoryRecursiveEff nixSupportDir
     let etcDir = usrDir </> "etc"
-    whenM (doesDirectoryExist etcDir)
-      $ renameDirectory etcDir (workingDir </> "etc")
-    let debFile = [i|#{toText packageName}.deb|]
-    putTextLn [i|restore interpreter...|]
-    allFiles <- listFilesRecursive usrDir
-    traverse_
-      ( \file -> do
-          void $ runProcess $ proc "chmod" ["u+w", file]
-          runProcess
-            $ proc
-              "patchelf"
-              ["--set-interpreter", "/lib64/ld-linux-x86-64.so.2", file]
-      )
+    whenM (doesDirectoryExistEff etcDir)
+      $ renameDirectoryEff etcDir (workingDir </> "etc")
+    logDebug "restore interpreter"
+    allFiles <- listFilesRecursiveEff usrDir
+    for_
       allFiles
-    putTextLn [i|build deb pkg...|]
-    runProcess_ $ proc "dpkg-deb" ["--root-owner-group", "--build", workingDir, debFile]
-    pure $ File debFile
+      \file -> do
+        (_exitCode, _output, _err) <- readProcessEff "chmod" ["u+w", file] -- TODO switch to native hs
+        (_exitCode, _output, _err) <- readProcessEff "patchelf" ["--set-interpreter", "/lib64/ld-linux-x86-64.so.2", file]
+        pure ()
+    logDebug "build deb pkg"
+    let debPackage = DebPackage [i|#{display packageName}.deb|]
+    (_output, _err) <-
+      readProcessEff_
+        "dpkg-deb"
+        ["--root-owner-group", "--build", workingDir, toString (display debPackage)]
+    pure debPackage
