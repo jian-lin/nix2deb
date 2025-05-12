@@ -65,11 +65,14 @@ generateDebPackage
       $ renameDirectoryEff etcDir (workingDir </> "etc")
     logDebug "restore interpreter"
     allFiles <- listFilesRecursiveEff usrDir
+    let interpreter = case arch of
+          Amd64 -> "/lib64/ld-linux-x86-64.so.2"
+          Arm64 -> "/lib/ld-linux-aarch64.so.1"
     for_
       allFiles
       \file -> do
         (_exitCode, _output, _err) <- readProcessEff "chmod" ["u+w", file] -- TODO switch to native hs
-        (_exitCode, _output, _err) <- readProcessEff "patchelf" ["--set-interpreter", "/lib64/ld-linux-x86-64.so.2", file]
+        (_exitCode, _output, _err) <- readProcessEff "patchelf" ["--set-interpreter", interpreter, file]
         pure ()
     logDebug "build deb pkg"
     let debPackage = DebPackage [i|#{display packageName}.deb|]
