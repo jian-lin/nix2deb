@@ -23,16 +23,6 @@
               hlib = final.haskell.lib.compose;
             in
             hfinal: hprev: {
-              haskell-language-server = hlib.appendPatch (final.fetchpatch2 {
-                name = "provide-code-action-in-eval-plugin.patch";
-                url = "https://github.com/haskell/haskell-language-server/commit/caa1c32f4b45c3717dadc00fea2b489f3af2e616.patch";
-                excludes = [
-                  ".pre-commit-config.yaml"
-                  "docs/features.md"
-                  "plugins/hls-eval-plugin/README.md"
-                ];
-                hash = "sha256-PwuMYUWI9bK9hErz0nS8ETCE5xxRn5E/XdXKxZphLxM=";
-              }) hprev.haskell-language-server;
               ${projectName} =
                 let
                   # filter out haskell-unrelated files to avoid unnecessary rebuilds
