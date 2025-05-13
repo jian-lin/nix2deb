@@ -1,7 +1,4 @@
 {
-  # use haskell-updates branch for HLS-2.10.0.0
-  inputs.nixpkgs.url = "github:nixos/nixpkgs/haskell-updates";
-
   outputs =
     { self, nixpkgs }:
     let
