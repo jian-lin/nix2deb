@@ -6,13 +6,13 @@ module Nix2Deb
   )
 where
 
-import Colog (Message, WithLog, logDebug, logInfo)
+import Colog (Message, WithLog, logDebug, logInfo, logWarning)
 import Control.Exception.Safe (MonadCatch, MonadThrow, throwM)
 import Data.String.Interpolate (i)
 import Nix2Deb.Deb (generateDebPackage)
 import Nix2Deb.Effects (ExternProcessEffect, FileSystemEffect, NetworkEffect, SleepEffect)
 import Nix2Deb.Exceptions (NixVersionNotValidAsDebVersionException (..))
-import Nix2Deb.Map (findDebDependencyPackages)
+import Nix2Deb.Map (chooseDebDependencyPackage, scrapeDebDependencyPackages)
 import Nix2Deb.Nix (getDependenciesForNixPackage, getNixAttributeValue)
 import Nix2Deb.Types
 import Relude
@@ -33,9 +33,15 @@ app ::
 app = do
   logDebug "get deb dependency packages"
   Options {nixPackageOutputDirectory, nixInstallable, maintainerName, maintainerEmail, arch} <- asks getCliOptions
-  dependencies <- getDependenciesForNixPackage nixPackageOutputDirectory
+  dependencies <- toList <$> getDependenciesForNixPackage nixPackageOutputDirectory
   logInfo [i|found dependencies: #{display dependencies}|]
-  chosenDebDependencyPackages <- traverse findDebDependencyPackages (toList dependencies)
+  debDependencyPackages <- traverse scrapeDebDependencyPackages dependencies
+  let chosenDebDependencyPackages = uncurry chooseDebDependencyPackage <$> zip dependencies debDependencyPackages
+  forM_ (zip dependencies chosenDebDependencyPackages) \(dependency, (chosen, others)) ->
+    let chosenLog = [i|choose deb dependency package #{display chosen} for #{display dependency}|]
+     in if null others
+          then logInfo chosenLog
+          else logWarning [i|#{chosenLog}, other choices are #{display others}|]
   logDebug "collect package meta info"
   debPackageName <- DebPackageName . toText <$> getNixAttributeValue nixInstallable ["pname"]
   logDebug [i|package name: #{display debPackageName}|]

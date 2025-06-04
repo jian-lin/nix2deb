@@ -3,11 +3,12 @@
 
 -- | This modules is about the mapping between nix and deb packages.
 module Nix2Deb.Map
-  ( findDebDependencyPackages,
+  ( scrapeDebDependencyPackages,
+    chooseDebDependencyPackage,
   )
 where
 
-import Colog (Message, WithLog, logDebug, logInfo, logWarning)
+import Colog (Message, WithLog, logDebug)
 import Control.Exception.Safe (MonadCatch, MonadThrow, throwM, tryJust)
 import Data.HashMap.Strict qualified as HashMap
 import Data.List.NonEmpty qualified as NL
@@ -48,7 +49,7 @@ retry (x : xs) predicate action = do
     boolToMaybe predicate' e = bool Nothing (Just e) (predicate' e)
 
 -- TODO make it concurrent (but not too concurrent to avoid rate-limit) to speed up
-findDebDependencyPackages ::
+scrapeDebDependencyPackages ::
   ( WithLog env Message m,
     HasCliOptions env,
     NetworkEffect m,
@@ -57,27 +58,21 @@ findDebDependencyPackages ::
     MonadCatch m
   ) =>
   DependencyWithInfoFromNix ->
-  m (DebDependencyPackage, [DebDependencyPackage])
-findDebDependencyPackages dependency = retry retryIntervals isScrapeNetworkException do
+  m (NonEmpty DebDependencyPackage)
+scrapeDebDependencyPackages dependency = retry retryIntervals isScrapeNetworkException do
   Options {suite, arch} <- asks getCliOptions
   let queryUrl = Url [i|https://packages.ubuntu.com/search?searchon=contents&keywords=#{display dependency}&mode=exactfilename&suite=#{display suite}&arch=#{display arch}|]
   logDebug [i|process #{display dependency} query #{display queryUrl}|]
   tags <- retry retryIntervals (\(FetchTagException _ _) -> True) (fetchTagsEff queryUrl)
-  case scrapeDebDependencyPackages tags of
+  case scrapeDebDependencyPackages' tags of
     Left scraperError -> throwM $ ScrapeException dependency queryUrl scraperError
-    Right depDependenciesPackages -> do
-      let result@(chosen, others) = chooseDebDependencyPackage dependency depDependenciesPackages
-          chosenLog = [i|choose deb dependency package #{display chosen} for #{display dependency}|]
-      if null others
-        then logInfo chosenLog
-        else logWarning [i|#{chosenLog}, other choices are #{display others}|]
-      pure result
+    Right depDependenciesPackages -> pure depDependenciesPackages
   where
     isScrapeNetworkException (ScrapeException _ _ NetworkError) = True
     isScrapeNetworkException _ = False
 
-scrapeDebDependencyPackages :: Tags -> Either ScrapeError (NonEmpty DebDependencyPackage)
-scrapeDebDependencyPackages tags
+scrapeDebDependencyPackages' :: Tags -> Either ScrapeError (NonEmpty DebDependencyPackage)
+scrapeDebDependencyPackages' tags
   | Just "500 Internal Server Error" <- S.scrape http500Scraper (unTags tags) = Left NetworkError
   | otherwise = toEither $ mergeByDebPackage <$> S.scrape debDependencyPackageScraper (unTags tags)
   where
