@@ -1,5 +1,6 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TemplateHaskell #-}
 
 module Main.Cli
   ( parseCliOptions,
@@ -34,6 +35,7 @@ optionsParser = do
   multipleDebDependencyPackageChooseStrategy <- multipleDebDependencyPackageChooseStrategyParser
   maintainerName <- maintainerNameParser
   maintainerEmail <- maintainerEmailParser
+  scrapeThreads <- scrapeThreadsParser
   logLevel <- logLevelParser
   pure Options {..}
 
@@ -111,6 +113,23 @@ maintainerEmailParser =
         <> O.showDefaultWith (display >>> toString)
         <> O.help "Maintainer email of this package"
     )
+
+scrapeThreadsParser :: Parser ThreadNumber
+scrapeThreadsParser =
+  O.option
+    (O.eitherReader threadNumberReader)
+    ( O.long "scrape-threads"
+        <> O.short 't'
+        <> O.metavar "N"
+        <> O.value $(mkThreadNumberTH 3)
+        <> O.showDefaultWith (unThreadNumber >>> show)
+        <> O.help "Number of threads to scrape concurrently"
+    )
+
+threadNumberReader :: String -> Either String ThreadNumber
+threadNumberReader s = do
+  threadNumber <- first toString $ readEither s
+  first show $ mkThreadNumber threadNumber
 
 logLevelParser :: Parser Severity
 logLevelParser =

@@ -24,3 +24,6 @@ class ExternProcessEffect effect where
 
 class SleepEffect effect where
   sleepEff :: Int -> effect ()
+
+class ConcurrentEffect effect where
+  pooledMapConcurrentlyNEff :: (Traversable t) => ThreadNumber -> (a -> effect b) -> t a -> effect (t b)

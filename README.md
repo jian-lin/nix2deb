@@ -38,7 +38,8 @@ Usage: nix2deb DIRECTORY (-i|--nix-installable INSTALLABLE)
                (-s|--suite CODENAME) [-a|--arch ARCH]
                [-c|--choose-strategy|--multiple-deb-dependency-package-choose-strategy STRATEGY]
                [-n|--maintainer-name|--name NAME]
-               [-e|--email|--maintainer-email EMAIL] [-l|--log-level LOG-LEVEL]
+               [-e|--email|--maintainer-email EMAIL] [-t|--scrape-threads N]
+               [-l|--log-level LOG-LEVEL]
 
   Convert a Nix package to a deb package using other deb packages as
   dependencies
@@ -59,6 +60,7 @@ Available options:
   -e,--email,--maintainer-email EMAIL
                            Maintainer email of this package
                            (default: someone@example.com)
+  -t,--scrape-threads N    Number of threads to scrape concurrently (default: 3)
   -l,--log-level LOG-LEVEL [Debug,Info,Warning,Error] (default: Info)
   -h,--help                Show this help text
 ```

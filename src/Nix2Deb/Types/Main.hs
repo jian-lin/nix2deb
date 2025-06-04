@@ -2,6 +2,7 @@ module Nix2Deb.Types.Main where
 
 import Colog (Severity)
 import Data.Text qualified as T
+import Nix2Deb.Types.ThreadNumber (ThreadNumber)
 import Relude
 import Text.HTML.TagSoup (Tag)
 
@@ -139,6 +140,7 @@ data Options = Options
     multipleDebDependencyPackageChooseStrategy :: MultipleDebDependencyPackageChooseStrategy,
     maintainerName :: MaintainerName,
     maintainerEmail :: MaintainerEmail,
+    scrapeThreads :: ThreadNumber,
     logLevel :: Severity
   }
 

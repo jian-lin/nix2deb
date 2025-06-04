@@ -39,6 +39,8 @@ library
     Nix2Deb.Types
     Nix2Deb.Types.DebVersion
     Nix2Deb.Types.Main
+    Nix2Deb.Types.ThreadNumber
+    Nix2Deb.Types.ThreadNumber.TH
 
   build-depends:
     directory ^>=1.3.8.5,
@@ -49,6 +51,7 @@ library
     scalpel ^>=0.6.2.2,
     string-interpolate ^>=0.3.4.0,
     tagsoup ^>=0.14.8,
+    template-haskell ^>=2.21.0.0,
     typed-process ^>=0.2.12.0,
     unliftio ^>=0.2.25.1,
     unordered-containers ^>=0.2.20,

@@ -9,7 +9,7 @@ import Relude
 import System.Directory.Extra (listFilesRecursive)
 import System.Process.Typed (proc, readProcess, readProcess_, shell)
 import Text.HTML.Scalpel (fetchTags)
-import UnliftIO (MonadUnliftIO, withTempDirectory)
+import UnliftIO (MonadUnliftIO, pooledMapConcurrentlyN, withTempDirectory)
 import UnliftIO.Concurrent (threadDelay)
 import UnliftIO.Directory (createDirectoryIfMissing, doesDirectoryExist, removeDirectoryRecursive, renameDirectory)
 
@@ -55,3 +55,6 @@ instance NetworkEffect (App env) where
 
 instance SleepEffect (App env) where
   sleepEff = threadDelay
+
+instance ConcurrentEffect (App env) where
+  pooledMapConcurrentlyNEff threadNumber = pooledMapConcurrentlyN (unThreadNumber threadNumber)

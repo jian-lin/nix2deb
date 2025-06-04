@@ -49,7 +49,6 @@ retry (x : xs) predicate action = do
   where
     boolToMaybe predicate' e = bool Nothing (Just e) (predicate' e)
 
--- TODO make it concurrent (but not too concurrent to avoid rate-limit) to speed up
 scrapeDebDependencyPackages ::
   ( WithLog env Message m,
     HasCliOptions env,

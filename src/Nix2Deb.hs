@@ -10,7 +10,7 @@ import Colog (Message, WithLog, logDebug, logInfo, logWarning)
 import Control.Exception.Safe (MonadCatch, MonadThrow, throwM)
 import Data.String.Interpolate (i)
 import Nix2Deb.Deb (generateDebPackage)
-import Nix2Deb.Effects (ExternProcessEffect, FileSystemEffect, NetworkEffect, SleepEffect)
+import Nix2Deb.Effects (ConcurrentEffect (..), ExternProcessEffect, FileSystemEffect, NetworkEffect, SleepEffect)
 import Nix2Deb.Exceptions (NixVersionNotValidAsDebVersionException (..))
 import Nix2Deb.Map (chooseDebDependencyPackage, chooseDebDependencyPackageHeuristically, scrapeDebDependencyPackages)
 import Nix2Deb.Nix (getDependenciesForNixPackage, getNixAttributeValue)
@@ -27,7 +27,8 @@ app ::
     HasCliOptions env,
     MonadThrow m,
     SleepEffect m,
-    MonadCatch m
+    MonadCatch m,
+    ConcurrentEffect m
   ) =>
   m ()
 app = do
@@ -38,12 +39,13 @@ app = do
       maintainerName,
       maintainerEmail,
       arch,
-      multipleDebDependencyPackageChooseStrategy
+      multipleDebDependencyPackageChooseStrategy,
+      scrapeThreads
     } <-
     asks getCliOptions
   dependencies <- toList <$> getDependenciesForNixPackage nixPackageOutputDirectory
   logInfo [i|found dependencies: #{display dependencies}|]
-  debDependencyPackages <- traverse scrapeDebDependencyPackages dependencies
+  debDependencyPackages <- pooledMapConcurrentlyNEff scrapeThreads scrapeDebDependencyPackages dependencies
   let heuristicChosenDebDependencyPackages = uncurry chooseDebDependencyPackageHeuristically <$> zip dependencies debDependencyPackages
   chosenDebDependencyPackages <- chooseDebDependencyPackage multipleDebDependencyPackageChooseStrategy (zip dependencies heuristicChosenDebDependencyPackages)
   forM_ (zip dependencies chosenDebDependencyPackages) \(dependency, (chosen, others)) ->
