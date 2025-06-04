@@ -36,6 +36,7 @@ sudo apt remove test-exe && sudo apt autoremove
 ```console
 Usage: nix2deb DIRECTORY (-i|--nix-installable INSTALLABLE)
                (-s|--suite CODENAME) [-a|--arch ARCH]
+               [-c|--choose-strategy|--multiple-deb-dependency-package-choose-strategy STRATEGY]
                [-n|--maintainer-name|--name NAME]
                [-e|--email|--maintainer-email EMAIL] [-l|--log-level LOG-LEVEL]
 
@@ -50,6 +51,8 @@ Available options:
                            https://nix.dev/manual/nix/latest/command-ref/new-cli/nix.html#installables.
   -s,--suite CODENAME      Version of the Ubuntu system such as plucky
   -a,--arch ARCH           [Amd64,Arm64] (default: Amd64)
+  -c,--choose-strategy,--multiple-deb-dependency-package-choose-strategy STRATEGY
+                           [Heuristic,ErrorOut] (default: Heuristic)
   -n,--maintainer-name,--name NAME
                            Maintainer name of this package
                            (default: nix2deb user)

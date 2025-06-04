@@ -3,7 +3,8 @@
 -- | This module contains exceptions.
 module Nix2Deb.Exceptions where
 
-import Data.String.Interpolate (__i)
+import Data.String.Interpolate (i, __i)
+import Data.Text qualified as T
 import Nix2Deb.Types
 import Relude
 
@@ -58,3 +59,17 @@ instance Exception GetNixPnameForSonameException where
         file: #{file}
         soname: #{display soname}
     |]
+
+newtype MultipleDebDependencyPackageChooseException
+  = MultipleDebDependencyPackageChoicesExist (NonEmpty (DependencyWithInfoFromNix, (DebDependencyPackage, NonEmpty DebDependencyPackage)))
+  deriving stock (Show)
+
+instance Exception MultipleDebDependencyPackageChooseException where
+  displayException (MultipleDebDependencyPackageChoicesExist dependencyAndDebDependencyPackagesList) =
+    let format (dependency, (chosen, others)) = [i|For #{display dependency}: prefer #{display chosen}, other choices are #{display others}|]
+        -- TODO use a pretty print lib instead of manually indent
+        formatList = fmap format >>> toList >>> T.intercalate "\n  "
+     in [__i|
+          Multiple deb dependency package choices for one dependency exist:
+            #{formatList dependencyAndDebDependencyPackagesList}
+        |]

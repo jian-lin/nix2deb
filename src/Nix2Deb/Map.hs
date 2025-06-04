@@ -4,6 +4,7 @@
 -- | This modules is about the mapping between nix and deb packages.
 module Nix2Deb.Map
   ( scrapeDebDependencyPackages,
+    chooseDebDependencyPackageHeuristically,
     chooseDebDependencyPackage,
   )
 where
@@ -15,7 +16,7 @@ import Data.List.NonEmpty qualified as NL
 import Data.Set qualified as Set
 import Data.String.Interpolate (i, __i)
 import Nix2Deb.Effects (NetworkEffect (..), SleepEffect (..))
-import Nix2Deb.Exceptions (FetchTagException (..), ScrapeException (..))
+import Nix2Deb.Exceptions (FetchTagException (..), MultipleDebDependencyPackageChooseException (..), ScrapeException (..))
 import Nix2Deb.Types
 import Relude
 import Text.EditDistance qualified as ED
@@ -80,15 +81,29 @@ scrapeDebDependencyPackages' tags
     toEither (Just []) = Left EmptyResult
     toEither (Just (x : xs)) = Right (x :| xs)
 
--- TODO more choosing strategies
+chooseDebDependencyPackage ::
+  (MonadThrow m) =>
+  MultipleDebDependencyPackageChooseStrategy ->
+  [(DependencyWithInfoFromNix, (DebDependencyPackage, [DebDependencyPackage]))] ->
+  m [(DebDependencyPackage, [DebDependencyPackage])]
+chooseDebDependencyPackage Heuristic dependencyAndHeuristicChoicesList = pure $ snd <$> dependencyAndHeuristicChoicesList
+chooseDebDependencyPackage ErrorOut dependencyAndHeuristicChoicesList =
+  case mapMaybe toMaybeNonEmptyOtherChoices dependencyAndHeuristicChoicesList of
+    [] -> pure $ snd <$> dependencyAndHeuristicChoicesList
+    x : xs -> throwM $ MultipleDebDependencyPackageChoicesExist (x :| xs)
+  where
+    toMaybeNonEmptyOtherChoices (dependency, (chosen, others)) =
+      case others of
+        [] -> Nothing
+        x : xs -> Just (dependency, (chosen, x :| xs))
 
 -- | Choose a single deb package from many deb packages.
 -- We choose the deb package whose name has the smallest edit distance with the nix pname.
-chooseDebDependencyPackage ::
+chooseDebDependencyPackageHeuristically ::
   DependencyWithInfoFromNix ->
   NonEmpty DebDependencyPackage ->
   (DebDependencyPackage, [DebDependencyPackage])
-chooseDebDependencyPackage
+chooseDebDependencyPackageHeuristically
   dependencyWithInfoFromNix
   (NL.sortBy (compareEditDistance dependencyWithInfoFromNix) -> x :| xs) = (x, xs)
 

@@ -31,6 +31,7 @@ optionsParser = do
   nixInstallable <- nixInstallableParser
   suite <- suiteParser
   arch <- archParser
+  multipleDebDependencyPackageChooseStrategy <- multipleDebDependencyPackageChooseStrategyParser
   maintainerName <- maintainerNameParser
   maintainerEmail <- maintainerEmailParser
   logLevel <- logLevelParser
@@ -72,6 +73,19 @@ archParser =
         <> O.value Amd64
         <> O.showDefault
         <> O.help (show [minBound :: DebArch ..])
+    )
+
+multipleDebDependencyPackageChooseStrategyParser :: Parser MultipleDebDependencyPackageChooseStrategy
+multipleDebDependencyPackageChooseStrategyParser =
+  O.option
+    O.auto
+    ( O.long "multiple-deb-dependency-package-choose-strategy"
+        <> O.long "choose-strategy"
+        <> O.short 'c'
+        <> O.metavar "STRATEGY"
+        <> O.value Heuristic
+        <> O.showDefault
+        <> O.help (show [minBound :: MultipleDebDependencyPackageChooseStrategy ..])
     )
 
 maintainerNameParser :: Parser MaintainerName

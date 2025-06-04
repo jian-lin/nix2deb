@@ -12,7 +12,7 @@ import Data.String.Interpolate (i)
 import Nix2Deb.Deb (generateDebPackage)
 import Nix2Deb.Effects (ExternProcessEffect, FileSystemEffect, NetworkEffect, SleepEffect)
 import Nix2Deb.Exceptions (NixVersionNotValidAsDebVersionException (..))
-import Nix2Deb.Map (chooseDebDependencyPackage, scrapeDebDependencyPackages)
+import Nix2Deb.Map (chooseDebDependencyPackage, chooseDebDependencyPackageHeuristically, scrapeDebDependencyPackages)
 import Nix2Deb.Nix (getDependenciesForNixPackage, getNixAttributeValue)
 import Nix2Deb.Types
 import Relude
@@ -32,11 +32,20 @@ app ::
   m ()
 app = do
   logDebug "get deb dependency packages"
-  Options {nixPackageOutputDirectory, nixInstallable, maintainerName, maintainerEmail, arch} <- asks getCliOptions
+  Options
+    { nixPackageOutputDirectory,
+      nixInstallable,
+      maintainerName,
+      maintainerEmail,
+      arch,
+      multipleDebDependencyPackageChooseStrategy
+    } <-
+    asks getCliOptions
   dependencies <- toList <$> getDependenciesForNixPackage nixPackageOutputDirectory
   logInfo [i|found dependencies: #{display dependencies}|]
   debDependencyPackages <- traverse scrapeDebDependencyPackages dependencies
-  let chosenDebDependencyPackages = uncurry chooseDebDependencyPackage <$> zip dependencies debDependencyPackages
+  let heuristicChosenDebDependencyPackages = uncurry chooseDebDependencyPackageHeuristically <$> zip dependencies debDependencyPackages
+  chosenDebDependencyPackages <- chooseDebDependencyPackage multipleDebDependencyPackageChooseStrategy (zip dependencies heuristicChosenDebDependencyPackages)
   forM_ (zip dependencies chosenDebDependencyPackages) \(dependency, (chosen, others)) ->
     let chosenLog = [i|choose deb dependency package #{display chosen} for #{display dependency}|]
      in if null others

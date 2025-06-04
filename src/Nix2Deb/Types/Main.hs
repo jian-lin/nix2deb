@@ -128,11 +128,15 @@ instance Display ScrapeError where
   display EmptyResult = "empty result"
   display UnknownError = "unknown error"
 
+data MultipleDebDependencyPackageChooseStrategy = Heuristic | ErrorOut
+  deriving stock (Show, Read, Enum, Bounded)
+
 data Options = Options
   { nixPackageOutputDirectory :: NixPackageOutputDirectory,
     nixInstallable :: NixInstallable,
     suite :: Suite,
     arch :: DebArch,
+    multipleDebDependencyPackageChooseStrategy :: MultipleDebDependencyPackageChooseStrategy,
     maintainerName :: MaintainerName,
     maintainerEmail :: MaintainerEmail,
     logLevel :: Severity
