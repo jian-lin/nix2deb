@@ -1,3 +1,7 @@
-packages: ./*.cabal
+packages:
+  ./
+
+-- haskell-flake has special requirements for the format of `packages`
+-- https://github.com/srid/haskell-flake/issues/307
 tests: True
 benchmarks: True
