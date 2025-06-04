@@ -39,13 +39,13 @@ toNixList attributes =
 getDependenciesForNixPackage ::
   (FileSystemEffect m, ExternProcessEffect m, WithLog env Message m) =>
   NixPackageOutputDirectory ->
-  m (Set DependencyFile)
+  m (Set DependencyWithInfoFromNix)
 getDependenciesForNixPackage (NixPackageOutputDirectory nixPackageOutputDirectory) = do
   files <- listFilesRecursiveEff nixPackageOutputDirectory
   mconcat <$> traverse getDependencySonamesForFile files
 
 getDependencySonamesForFile ::
-  (ExternProcessEffect m, WithLog env Message m) => FilePath -> m (Set DependencyFile)
+  (ExternProcessEffect m, WithLog env Message m) => FilePath -> m (Set DependencyWithInfoFromNix)
 getDependencySonamesForFile file = do
   logDebug [i|find dependency soname for #{file}|]
   (exitCode, output, _err) <- readProcessEff "objdump" ["-p", file]
@@ -53,7 +53,7 @@ getDependencySonamesForFile file = do
     then do
       dependencySonames <- catMaybes <$> traverse (getDependencySoname . words) (lines output)
       logDebug [i|found #{display dependencySonames} needed by #{file}|]
-      pure $ Set.fromList dependencySonames
+      pure $ Set.fromList $ DependencyWithInfoFromNix <$> dependencySonames
     else do
       -- TODO ensure it is the wrong file type instead of other error
       logDebug [i|ignore #{file}: needs no soname|]

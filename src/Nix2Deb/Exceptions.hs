@@ -7,7 +7,7 @@ import Data.String.Interpolate (__i)
 import Nix2Deb.Types
 import Relude
 
-data ScrapeException = ScrapeException DependencyFile Url ScrapeError
+data ScrapeException = ScrapeException DependencyWithInfoFromNix Url ScrapeError
   deriving stock (Show)
 
 instance Exception ScrapeException where

@@ -23,6 +23,15 @@ newtype DependencyFile = DependencyFile FilePath
   deriving stock (Show, Eq, Ord)
   deriving newtype (Display)
 
+newtype DependencyWithInfoFromNix = DependencyWithInfoFromNix DependencyFile
+  deriving stock (Show, Eq, Ord)
+
+instance Display DependencyWithInfoFromNix where
+  display (DependencyWithInfoFromNix dependencyFile) = display dependencyFile
+
+newtype DependencyWithInfoFromDeb = DependencyWithInfoFromDeb DependencyFile
+  deriving stock (Show, Eq, Ord)
+
 newtype DebPackage = DebPackage Text
   deriving stock (Show, Eq, Ord)
   deriving newtype (Display, Hashable)
@@ -45,7 +54,7 @@ newtype Suite = Suite Text
 
 data DebDependencyPackage = DebDependencyPackage
   { ddpPackage :: DebPackage,
-    ddpDependencyFile :: Set DependencyFile
+    ddpDependencyFile :: Set DependencyWithInfoFromDeb
   }
   deriving stock (Show)
 

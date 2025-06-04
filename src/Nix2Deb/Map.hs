@@ -55,7 +55,7 @@ findDebDependencyPackages ::
     SleepEffect m,
     MonadCatch m
   ) =>
-  DependencyFile ->
+  DependencyWithInfoFromNix ->
   m (DebDependencyPackage, [DebDependencyPackage])
 findDebDependencyPackages dependency = retry retryIntervals isScrapeNetworkException do
   Options {suite, arch} <- asks getCliOptions
@@ -95,15 +95,15 @@ chooseDebDependencyPackage (NL.sortWith ddpPackage -> x :| xs) = (x, xs)
 http500Scraper :: Scraper Text Text
 http500Scraper = S.text "title"
 
-debDependencyPackageScraper :: Scraper Text [(DebPackage, DependencyFile)]
+debDependencyPackageScraper :: Scraper Text [(DebPackage, DependencyWithInfoFromDeb)]
 debDependencyPackageScraper =
   S.chroots ("div" @: ["id" @= "pcontentsres"] // "table" // "tr") do
-    foundDependencyFile' <- DependencyFile . toString <$> S.text ("td" @: [S.hasClass "file"])
+    foundDependencyFile' <- DependencyWithInfoFromDeb . DependencyFile . toString <$> S.text ("td" @: [S.hasClass "file"])
     debPackage <- DebPackage . toText <$> S.text "a"
     pure (debPackage, foundDependencyFile')
 
 -- maybe slow?
-mergeByDebPackage :: [(DebPackage, DependencyFile)] -> [DebDependencyPackage]
+mergeByDebPackage :: [(DebPackage, DependencyWithInfoFromDeb)] -> [DebDependencyPackage]
 mergeByDebPackage =
   fmap (second one)
     >>> HashMap.fromListWith Set.union
