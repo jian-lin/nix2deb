@@ -3,7 +3,7 @@ name: nix2deb
 version: 0.1.0.0
 synopsis: Convert a Nix package to a deb package using other deb packages as dependencies.
 homepage: https://github.com/jian-lin/nix2deb
-license: AGPL-3.0-or-later
+license: MIT
 license-file: LICENSE
 author: Lin Jian
 maintainer: me@linj.tech
