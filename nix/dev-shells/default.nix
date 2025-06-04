@@ -18,6 +18,7 @@
           # keep-sorted start block=yes
           pkgs.binutils
           pkgs.dpkg
+          pkgs.glibc
           pkgs.patchelf
           # keep-sorted end
         ];

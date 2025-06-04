@@ -40,3 +40,21 @@ instance Exception NixVersionNotValidAsDebVersionException where
         Original nix version: #{originalNixVersion}
         After filtering out invalid chars: #{filteredNixVersion}
     |]
+
+data GetNixPnameForSonameException
+  = NixPnameParseException NixPnameParseError
+  | NixStorePathNotFoundForSonameException FilePath DependencyFile
+  deriving stock (Show)
+
+instance Exception GetNixPnameForSonameException where
+  displayException (NixPnameParseException nixPnameParseError) =
+    [__i|
+      Fail to parse nix pname:
+        #{display nixPnameParseError}
+    |]
+  displayException (NixStorePathNotFoundForSonameException file soname) =
+    [__i|
+      Fail to get nix pname for soname: nix store path not found
+        file: #{file}
+        soname: #{display soname}
+    |]

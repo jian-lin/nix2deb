@@ -47,6 +47,7 @@
                         lib.makeBinPath [
                           pkgs.binutils
                           pkgs.dpkg
+                          pkgs.glibc
                           pkgs.patchelf
                         ]
                       }"

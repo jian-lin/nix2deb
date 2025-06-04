@@ -23,11 +23,29 @@ newtype DependencyFile = DependencyFile FilePath
   deriving stock (Show, Eq, Ord)
   deriving newtype (Display)
 
-newtype DependencyWithInfoFromNix = DependencyWithInfoFromNix DependencyFile
-  deriving stock (Show, Eq, Ord)
+newtype NixPname = NixPname Text
+  deriving stock (Show)
+
+newtype NixName = NixName Text
+  deriving stock (Show)
+
+newtype NixStorePath = NixStorePath Text
+  deriving stock (Show)
+  deriving newtype (Display)
+
+data DependencyWithInfoFromNix = DependencyWithInfoFromNix DependencyFile NixPname
+  deriving stock (Show)
+
+instance Eq DependencyWithInfoFromNix where
+  (DependencyWithInfoFromNix dependencyFile1 _) == (DependencyWithInfoFromNix dependencyFile2 _) =
+    dependencyFile1 == dependencyFile2
+
+instance Ord DependencyWithInfoFromNix where
+  compare (DependencyWithInfoFromNix dependencyFile1 _) (DependencyWithInfoFromNix dependencyFile2 _) =
+    compare dependencyFile1 dependencyFile2
 
 instance Display DependencyWithInfoFromNix where
-  display (DependencyWithInfoFromNix dependencyFile) = display dependencyFile
+  display (DependencyWithInfoFromNix dependencyFile _) = display dependencyFile
 
 newtype DependencyWithInfoFromDeb = DependencyWithInfoFromDeb DependencyFile
   deriving stock (Show, Eq, Ord)
@@ -122,3 +140,14 @@ data Options = Options
 
 class HasCliOptions env where
   getCliOptions :: env -> Options
+
+data NixPnameParseError
+  = UnsupportedNixStoreDir NixStorePath
+  | CannotSplitHashAndName NixStorePath
+  | EmptyNixName
+  deriving stock (Show)
+
+instance Display NixPnameParseError where
+  display (UnsupportedNixStoreDir nixStorePath) = "Unsupported nix store dir: " <> display nixStorePath
+  display (CannotSplitHashAndName nixStorePath) = "Fail to split nix hash and name using dash (-): " <> display nixStorePath
+  display EmptyNixName = "Empty Nix name"

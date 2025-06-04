@@ -17,6 +17,7 @@ import Nix2Deb.Effects (NetworkEffect (..), SleepEffect (..))
 import Nix2Deb.Exceptions (FetchTagException (..), ScrapeException (..))
 import Nix2Deb.Types
 import Relude
+import Text.EditDistance qualified as ED
 import Text.HTML.Scalpel (Scraper, (//), (@:), (@=))
 import Text.HTML.Scalpel qualified as S
 
@@ -65,7 +66,7 @@ findDebDependencyPackages dependency = retry retryIntervals isScrapeNetworkExcep
   case scrapeDebDependencyPackages tags of
     Left scraperError -> throwM $ ScrapeException dependency queryUrl scraperError
     Right depDependenciesPackages -> do
-      let result@(chosen, others) = chooseDebDependencyPackage depDependenciesPackages
+      let result@(chosen, others) = chooseDebDependencyPackage dependency depDependenciesPackages
           chosenLog = [i|choose deb dependency package #{display chosen} for #{display dependency}|]
       if null others
         then logInfo chosenLog
@@ -86,11 +87,23 @@ scrapeDebDependencyPackages tags
 
 -- TODO more choosing strategies
 
--- | Strategy for choosing a single deb package from many deb packages.
--- For now, we sort them using lexical order and choose the first one.
+-- | Choose a single deb package from many deb packages.
+-- We choose the deb package whose name has the smallest edit distance with the nix pname.
 chooseDebDependencyPackage ::
-  NonEmpty DebDependencyPackage -> (DebDependencyPackage, [DebDependencyPackage])
-chooseDebDependencyPackage (NL.sortWith ddpPackage -> x :| xs) = (x, xs)
+  DependencyWithInfoFromNix ->
+  NonEmpty DebDependencyPackage ->
+  (DebDependencyPackage, [DebDependencyPackage])
+chooseDebDependencyPackage
+  dependencyWithInfoFromNix
+  (NL.sortBy (compareEditDistance dependencyWithInfoFromNix) -> x :| xs) = (x, xs)
+
+compareEditDistance :: DependencyWithInfoFromNix -> DebDependencyPackage -> DebDependencyPackage -> Ordering
+compareEditDistance (DependencyWithInfoFromNix _ nixPname) (DebDependencyPackage debPackage1 _) (DebDependencyPackage debPackage2 _) =
+  compare (calcEditDistance nixPname debPackage1) (calcEditDistance nixPname debPackage2)
+
+calcEditDistance :: NixPname -> DebPackage -> Int
+calcEditDistance (NixPname nixPname) (DebPackage debPackage) =
+  ED.levenshteinDistance ED.defaultEditCosts (toString nixPname) (toString debPackage)
 
 http500Scraper :: Scraper Text Text
 http500Scraper = S.text "title"
