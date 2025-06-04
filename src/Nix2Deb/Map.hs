@@ -59,7 +59,7 @@ findDebDependencyPackages ::
   m (DebDependencyPackage, [DebDependencyPackage])
 findDebDependencyPackages dependency = retry retryIntervals isScrapeNetworkException do
   Options {suite, arch} <- asks getCliOptions
-  let queryUrl = Url [i|https://packages.ubuntu.com/search?searchon=contents&keywords=#{display dependency}&mode=filename&suite=#{display suite}&arch=#{display arch}|]
+  let queryUrl = Url [i|https://packages.ubuntu.com/search?searchon=contents&keywords=#{display dependency}&mode=exactfilename&suite=#{display suite}&arch=#{display arch}|]
   logDebug [i|process #{display dependency} query #{display queryUrl}|]
   tags <- retry retryIntervals (\(FetchTagException _ _) -> True) (fetchTagsEff queryUrl)
   case scrapeDebDependencyPackages tags of
