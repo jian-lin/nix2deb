@@ -8,7 +8,7 @@ Run this command to generate a test deb package.
 
 ```bash
 nix run github:jian-lin/nix2deb -- \
-  --nix-eval-command 'nix eval github:jian-lin/nix2deb#testExe' \
+  --nix-installable github:jian-lin/nix2deb#testExe \
   --suite plucky \
   $(nix build github:jian-lin/nix2deb#testExe --print-out-paths --no-link)
 ```
@@ -34,8 +34,9 @@ sudo apt remove test-exe && sudo apt autoremove
 ## Manual
 
 ```console
-Usage: nix2deb DIRECTORY (-e|--nix-eval-command COMMAND) (-s|--suite CODENAME) 
-               [-a|--arch ARCH] [-n|--maintainer-name|--name NAME] 
+Usage: nix2deb DIRECTORY (-i|--nix-installable INSTALLABLE)
+               (-s|--suite CODENAME) [-a|--arch ARCH]
+               [-n|--maintainer-name|--name NAME]
                [-m|--email|--maintainer-email EMAIL] [-l|--log-level LOG-LEVEL]
 
   Convert a Nix package to a deb package using other deb packages as
@@ -43,9 +44,10 @@ Usage: nix2deb DIRECTORY (-e|--nix-eval-command COMMAND) (-s|--suite CODENAME)
 
 Available options:
   DIRECTORY                Directory of your built nix package such as ./result
-  -e,--nix-eval-command COMMAND
-                           Command to eval your nix package such as 'nix eval
-                           .#myPkg'
+  -i,--nix-installable INSTALLABLE
+                           Nix installable representing your nix package such as
+                           .#myPkg. See
+                           https://nix.dev/manual/nix/latest/command-ref/new-cli/nix.html#installables.
   -s,--suite CODENAME      Version of the Ubuntu system such as plucky
   -a,--arch ARCH           [Amd64,Arm64] (default: Amd64)
   -n,--maintainer-name,--name NAME

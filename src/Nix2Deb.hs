@@ -31,16 +31,16 @@ app ::
   m ()
 app = do
   logDebug "get deb dependency packages"
-  Options {nixPackageOutputDirectory, nixEvalCommand, maintainerName, maintainerEmail, arch} <- asks getCliOptions
+  Options {nixPackageOutputDirectory, nixInstallable, maintainerName, maintainerEmail, arch} <- asks getCliOptions
   dependencies <- getDependenciesForNixPackage nixPackageOutputDirectory
   logInfo [i|found dependencies: #{display dependencies}|]
   chosenDebDependencyPackages <- traverse findDebDependencyPackages (toList dependencies)
   logDebug "collect package meta info"
-  debPackageName <- DebPackageName . toText <$> getNixAttributeValue nixEvalCommand "pname"
+  debPackageName <- DebPackageName . toText <$> getNixAttributeValue nixInstallable ["pname"]
   logDebug [i|package name: #{display debPackageName}|]
-  debVersion <- DebVersion . toText <$> getNixAttributeValue nixEvalCommand "version"
+  debVersion <- DebVersion . toText <$> getNixAttributeValue nixInstallable ["version"]
   logDebug [i|package version: #{display debVersion}|]
-  debDescription <- DebDescription . toText <$> getNixAttributeValue nixEvalCommand "meta.description"
+  debDescription <- DebDescription . toText <$> getNixAttributeValue nixInstallable ["meta", "description"]
   logDebug [i|package description: #{display debDescription}|]
   let debMaintainer = DebMaintainer maintainerName maintainerEmail
   logDebug [i|package maintainer: #{display debMaintainer}|]

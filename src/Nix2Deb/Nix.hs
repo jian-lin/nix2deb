@@ -16,12 +16,24 @@ import Nix2Deb.Types
 import Relude
 import System.Exit (ExitCode (ExitSuccess))
 
--- TODO find a better replacement for NixEvalCommand (user-provided shell command).  maybe (flake-only) installable?
 getNixAttributeValue ::
-  (Monad m, ExternProcessEffect m) => NixEvalCommand -> NixAttribute -> m NixString
-getNixAttributeValue evalCommand attribute = do
-  (output, _err) <- readProcessShellEff_ [i|#{display evalCommand}.#{display attribute} --raw|]
+  (Monad m, ExternProcessEffect m) => NixInstallable -> [NixAttribute] -> m NixString
+getNixAttributeValue installable attributes = do
+  (output, _err) <-
+    readProcessEff_
+      "nix"
+      ["eval", toString $ display installable, "--raw", "--apply", [i|#{getNestedAttr} #{toNixList attributes}|]]
   pure $ NixString output
+
+-- | Like @builtins.getAttr@ of Nix, but accepts a list of attributes and supports getting nested attribute.
+-- @`getNestedAttr` [ "meta", "description" ] hello@ means @hello.meta.description@.
+getNestedAttr :: Text
+getNestedAttr = "(attrs: set: builtins.foldl' (result: attr: builtins.getAttr attr result) set attrs)"
+
+toNixList :: [NixAttribute] -> Text
+toNixList attributes =
+  let nixAttributes = T.intercalate " " $ fmap (\attribute -> [i|"#{display attribute}"|]) attributes
+   in [i|[#{nixAttributes}]|]
 
 getDependenciesForNixPackage ::
   (FileSystemEffect m, ExternProcessEffect m, WithLog env Message m) =>

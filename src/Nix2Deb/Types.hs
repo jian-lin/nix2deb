@@ -61,7 +61,7 @@ newtype NixAttribute = NixAttribute Text
   deriving stock (Show)
   deriving newtype (IsString, Display)
 
-newtype NixEvalCommand = NixEvalCommand Text
+newtype NixInstallable = NixInstallable Text
   deriving stock (Show)
   deriving newtype (Display)
 
@@ -108,7 +108,7 @@ instance Display ScrapeError where
 
 data Options = Options
   { nixPackageOutputDirectory :: NixPackageOutputDirectory,
-    nixEvalCommand :: NixEvalCommand,
+    nixInstallable :: NixInstallable,
     suite :: Suite,
     arch :: DebArch,
     maintainerName :: MaintainerName,

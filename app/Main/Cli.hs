@@ -28,7 +28,7 @@ parseCliOptions =
 optionsParser :: Parser Options
 optionsParser = do
   nixPackageOutputDirectory <- nixPackageOutputDirectoryParser
-  nixEvalCommand <- nixEvalCommandParser
+  nixInstallable <- nixInstallableParser
   suite <- suiteParser
   arch <- archParser
   maintainerName <- maintainerNameParser
@@ -43,14 +43,14 @@ nixPackageOutputDirectoryParser =
         <> O.help "Directory of your built nix package such as ./result"
     )
 
-nixEvalCommandParser :: Parser NixEvalCommand
-nixEvalCommandParser =
-  NixEvalCommand
+nixInstallableParser :: Parser NixInstallable
+nixInstallableParser =
+  NixInstallable
     <$> O.strOption
-      ( O.long "nix-eval-command"
-          <> O.short 'e'
-          <> O.metavar "COMMAND"
-          <> O.help "Command to eval your nix package such as 'nix eval .#myPkg'"
+      ( O.long "nix-installable"
+          <> O.short 'i'
+          <> O.metavar "INSTALLABLE"
+          <> O.help "Nix installable representing your nix package such as .#myPkg.  See https://nix.dev/manual/nix/latest/command-ref/new-cli/nix.html#installables."
       )
 
 suiteParser :: Parser Suite
