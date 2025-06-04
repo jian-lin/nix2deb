@@ -37,7 +37,7 @@ sudo apt remove test-exe && sudo apt autoremove
 Usage: nix2deb DIRECTORY (-i|--nix-installable INSTALLABLE)
                (-s|--suite CODENAME) [-a|--arch ARCH]
                [-n|--maintainer-name|--name NAME]
-               [-m|--email|--maintainer-email EMAIL] [-l|--log-level LOG-LEVEL]
+               [-e|--email|--maintainer-email EMAIL] [-l|--log-level LOG-LEVEL]
 
   Convert a Nix package to a deb package using other deb packages as
   dependencies
@@ -53,7 +53,7 @@ Available options:
   -n,--maintainer-name,--name NAME
                            Maintainer name of this package
                            (default: nix2deb user)
-  -m,--email,--maintainer-email EMAIL
+  -e,--email,--maintainer-email EMAIL
                            Maintainer email of this package
                            (default: someone@example.com)
   -l,--log-level LOG-LEVEL [Debug,Info,Warning,Error] (default: Info)

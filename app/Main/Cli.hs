@@ -91,7 +91,7 @@ maintainerEmailParser =
   O.strOption
     ( O.long "maintainer-email"
         <> O.long "email"
-        <> O.short 'm'
+        <> O.short 'e'
         <> O.metavar "EMAIL"
         <> O.value "someone@example.com"
         <> O.showDefaultWith (display >>> toString)
