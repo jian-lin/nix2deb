@@ -37,6 +37,8 @@ library
     Nix2Deb.Map
     Nix2Deb.Nix
     Nix2Deb.Types
+    Nix2Deb.Types.DebVersion
+    Nix2Deb.Types.Main
 
   build-depends:
     directory ^>=1.3.8.5,

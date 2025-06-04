@@ -7,10 +7,11 @@ module Nix2Deb
 where
 
 import Colog (Message, WithLog, logDebug, logInfo)
-import Control.Exception.Safe (MonadCatch, MonadThrow)
+import Control.Exception.Safe (MonadCatch, MonadThrow, throwM)
 import Data.String.Interpolate (i)
 import Nix2Deb.Deb (generateDebPackage)
 import Nix2Deb.Effects (ExternProcessEffect, FileSystemEffect, NetworkEffect, SleepEffect)
+import Nix2Deb.Exceptions (NixVersionNotValidAsDebVersionException (..))
 import Nix2Deb.Map (findDebDependencyPackages)
 import Nix2Deb.Nix (getDependenciesForNixPackage, getNixAttributeValue)
 import Nix2Deb.Types
@@ -38,20 +39,23 @@ app = do
   logDebug "collect package meta info"
   debPackageName <- DebPackageName . toText <$> getNixAttributeValue nixInstallable ["pname"]
   logDebug [i|package name: #{display debPackageName}|]
-  debVersion <- DebVersion . toText <$> getNixAttributeValue nixInstallable ["version"]
-  logDebug [i|package version: #{display debVersion}|]
-  debDescription <- DebDescription . toText <$> getNixAttributeValue nixInstallable ["meta", "description"]
-  logDebug [i|package description: #{display debDescription}|]
-  let debMaintainer = DebMaintainer maintainerName maintainerEmail
-  logDebug [i|package maintainer: #{display debMaintainer}|]
-  logDebug "generate deb package"
-  debPackage <-
-    generateDebPackage
-      debPackageName
-      debVersion
-      debMaintainer
-      arch
-      debDescription
-      (fst <$> chosenDebDependencyPackages)
-      nixPackageOutputDirectory
-  logInfo [i|generated deb package: #{display debPackage}|]
+  nixVersion <- getNixAttributeValue nixInstallable ["version"]
+  case mkDebVersion nixVersion of
+    Left filteredNixVersion -> throwM $ NixVersionNotValidAsDebVersionException nixVersion filteredNixVersion
+    Right debVersion -> do
+      logDebug [i|package version: #{display debVersion}|]
+      debDescription <- DebDescription . toText <$> getNixAttributeValue nixInstallable ["meta", "description"]
+      logDebug [i|package description: #{display debDescription}|]
+      let debMaintainer = DebMaintainer maintainerName maintainerEmail
+      logDebug [i|package maintainer: #{display debMaintainer}|]
+      logDebug "generate deb package"
+      debPackage <-
+        generateDebPackage
+          debPackageName
+          debVersion
+          debMaintainer
+          arch
+          debDescription
+          (fst <$> chosenDebDependencyPackages)
+          nixPackageOutputDirectory
+      logInfo [i|generated deb package: #{display debPackage}|]

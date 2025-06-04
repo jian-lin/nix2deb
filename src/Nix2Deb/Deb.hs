@@ -41,12 +41,11 @@ generateDebPackage
     let debianDir = workingDir </> "DEBIAN"
         dependencies = T.intercalate ", " $ display . ddpPackage <$> debDependencyPackages
     createDirectoryIfMissingEff True debianDir
-    -- TODO handle invalid deb version
     writeFileTextEff
       (debianDir </> "control")
       [__i|
         Package: #{display packageName}
-        Version: #{display version}-1
+        Version: #{display version}
         Maintainer: #{display maintainer}
         Architecture: #{display arch}
         Description: #{display description}

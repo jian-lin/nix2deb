@@ -28,3 +28,15 @@ instance Exception FetchTagException where
         from #{display url}
         exception: #{displayException exception}
     |]
+
+-- TODO add newtype wrappers for these two NixString to distinguish them at type level
+data NixVersionNotValidAsDebVersionException = NixVersionNotValidAsDebVersionException NixString NixString
+  deriving stock (Show)
+
+instance Exception NixVersionNotValidAsDebVersionException where
+  displayException (NixVersionNotValidAsDebVersionException (NixString originalNixVersion) (NixString filteredNixVersion)) =
+    [__i|
+      Nix version is not valid as a deb version:
+        Original nix version: #{originalNixVersion}
+        After filtering out invalid chars: #{filteredNixVersion}
+    |]
