@@ -16,6 +16,7 @@ import Nix2Deb.Types
 import Relude
 import System.Exit (ExitCode (ExitSuccess))
 
+-- TODO can we make NixString more specific, like NixVersion, NixDescription?
 getNixAttributeValue ::
   (Monad m, ExternProcessEffect m) => NixInstallable -> [NixAttribute] -> m NixString
 getNixAttributeValue installable attributes = do
