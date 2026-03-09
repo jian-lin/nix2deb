@@ -23,6 +23,10 @@
             enable = true;
             package = config.haskellProjects.default.outputs.finalPackages.ormolu;
           };
+          cabal-gild = {
+            enable = true;
+            package = config.haskellProjects.default.outputs.finalPackages.cabal-gild;
+          };
           yamlfmt.excludes = [
             ".hlint.relude.yaml" # directly copied from relude repo
           ];
