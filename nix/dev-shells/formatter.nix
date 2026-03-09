@@ -23,12 +23,9 @@
             enable = true;
             package = config.haskellProjects.default.outputs.finalPackages.ormolu;
           };
-          yamlfmt = {
-            enable = true;
-            excludes = [
-              ".hlint.relude.yaml" # directly copied from relude repo
-            ];
-          };
+          yamlfmt.excludes = [
+            ".hlint.relude.yaml" # directly copied from relude repo
+          ];
           hlint = {
             enable = true;
             package = config.haskellProjects.default.outputs.finalPackages.hlint;
@@ -45,6 +42,9 @@
         # c
         programs.clang-format.enable = true;
         settings.formatter.clang-format.options = [ "--style=GNU" ];
+
+        # yaml
+        programs.yamlfmt.enable = true;
 
         programs.keep-sorted.enable = true;
       };
