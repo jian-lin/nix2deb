@@ -1,0 +1,12 @@
+name: build and test
+on:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cachix/install-nix-action@v31
+      - run: sudo apt --yes install systemd-container
+      - run: ./test.sh
