@@ -41,6 +41,7 @@ download_rootfs() {
 
 # alternative of --ephemeral: --template, --volatile
 # --ephemeral can be slow on ext4
+# TODO add more hardening options
 start_container() {
     sudo systemd-nspawn \
         --settings=no \
@@ -49,6 +50,7 @@ start_container() {
         --machine "$machine_name" \
         -U \
         --resolv-conf=bind-host \
+        --no-new-privileges=yes \
         -j
 }
 
