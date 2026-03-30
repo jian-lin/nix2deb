@@ -8,5 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v31
-      - run: sudo apt --yes install systemd-container
+      - name: install systemd-nspawn
+        run: |
+          sudo apt update
+          sudo apt --yes install systemd-container
       - run: ./test.sh
