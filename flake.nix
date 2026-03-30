@@ -16,6 +16,13 @@
       };
     };
     haskell-flake.url = "github:srid/haskell-flake";
+    hs-bindgen = {
+      url = "github:well-typed/hs-bindgen";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-parts.follows = "flake-parts";
+      };
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

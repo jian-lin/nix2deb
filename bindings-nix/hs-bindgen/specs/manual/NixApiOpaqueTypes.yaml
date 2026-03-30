@@ -1,0 +1,34 @@
+version:
+  hs_bindgen: 0.1.0
+  binding_specification: '1.0'
+hsmodule: Nix.Api.OpaqueTypes
+ctypes:
+  - headers: nix_api_expr.h
+    cname: struct nix_value
+    hsname: Nix_value
+  - headers: nix_api_expr.h
+    cname: nix_value
+    hsname: Nix_value
+  - headers: nix_api_expr.h
+    cname: struct EvalState
+    hsname: EvalState
+  - headers: nix_api_expr.h
+    cname: EvalState
+    hsname: EvalState
+  - headers: nix_api_value.h
+    cname: struct nix_value
+    hsname: Nix_value
+  - headers: nix_api_value.h
+    cname: nix_value
+    hsname: Nix_value
+  - headers: nix_api_value.h
+    cname: struct EvalState
+    hsname: EvalState
+  - headers: nix_api_value.h
+    cname: EvalState
+    hsname: EvalState
+hstypes:
+  - hsname: Nix_value
+    representation: emptydata
+  - hsname: EvalState
+    representation: emptydata

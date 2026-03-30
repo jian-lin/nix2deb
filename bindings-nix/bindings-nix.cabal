@@ -1,0 +1,71 @@
+cabal-version: 3.0
+name: bindings-nix
+version: 0.1.0.0
+synopsis: Bindings to Nix C API using hs-bindgen
+homepage: https://github.com/jian-lin/nix2deb
+license: MIT
+license-file: LICENSE
+author: Lin Jian
+maintainer: me@linj.tech
+category: Nix, Bindings, FFI
+build-type: Simple
+extra-doc-files:
+  CHANGELOG.md
+  README.md
+
+common defaults
+  build-depends:
+    base ^>=4.20.2.0 || ^>=4.21.0.0,
+    hs-bindgen-runtime ^>=0.1.0,
+
+  default-language: GHC2024
+  ghc-options: -Wall
+
+library
+  import: defaults
+  hs-source-dirs: src
+  -- cabal-gild: discover src
+  exposed-modules:
+    Generated.Lowlevel.Nix.Api.Expr
+    Generated.Lowlevel.Nix.Api.Expr.FunPtr
+    Generated.Lowlevel.Nix.Api.Expr.Safe
+    Generated.Lowlevel.Nix.Api.Expr.Unsafe
+    Generated.Lowlevel.Nix.Api.External
+    Generated.Lowlevel.Nix.Api.External.FunPtr
+    Generated.Lowlevel.Nix.Api.External.Safe
+    Generated.Lowlevel.Nix.Api.External.Unsafe
+    Generated.Lowlevel.Nix.Api.Store
+    Generated.Lowlevel.Nix.Api.Store.FunPtr
+    Generated.Lowlevel.Nix.Api.Store.Safe
+    Generated.Lowlevel.Nix.Api.Store.Unsafe
+    Generated.Lowlevel.Nix.Api.Util
+    Generated.Lowlevel.Nix.Api.Util.FunPtr
+    Generated.Lowlevel.Nix.Api.Util.Safe
+    Generated.Lowlevel.Nix.Api.Util.Unsafe
+    Generated.Lowlevel.Nix.Api.Value
+    Generated.Lowlevel.Nix.Api.Value.FunPtr
+    Generated.Lowlevel.Nix.Api.Value.Safe
+    Generated.Lowlevel.Nix.Api.Value.Unsafe
+    Nix.Api.OpaqueTypes
+
+  -- assume Nix C API is stable so we do not specify version constraints here
+  pkgconfig-depends:
+    nix-expr-c,
+    nix-store-c,
+    nix-util-c,
+
+test-suite bindings-nix-test
+  import: defaults
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: Main.hs
+  default-extensions:
+    BlockArguments
+    NoImplicitPrelude
+    OverloadedStrings
+
+  build-depends:
+    bindings-nix,
+    relude ^>=1.2.2.2,
+
+  ghc-options: -threaded

@@ -6,7 +6,7 @@
       ...
     }:
     {
-      devShells.default = pkgs.mkShellNoCC {
+      devShells.default = pkgs.mkShell {
         inputsFrom = [
           # keep-sorted start block=yes
           config.haskellProjects.default.outputs.devShell
