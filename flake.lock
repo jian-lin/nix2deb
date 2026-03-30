@@ -57,6 +57,47 @@
         "type": "github"
       }
     },
+    "hs-bindgen": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "libclang-bindings-src": "libclang-bindings-src",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774829023,
+        "narHash": "sha256-OGlzAp0z2tN3PilMH6o0x1Y0mWPqd5Ha50pMdPgpKuI=",
+        "owner": "well-typed",
+        "repo": "hs-bindgen",
+        "rev": "26f687a03e724885d7962aa93e7ae9f8a69064ef",
+        "type": "github"
+      },
+      "original": {
+        "owner": "well-typed",
+        "repo": "hs-bindgen",
+        "type": "github"
+      }
+    },
+    "libclang-bindings-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774600891,
+        "narHash": "sha256-LTAyNMY4Vu0vPeEq2wXB0KWY4kGtqtHTRmADjLdkv78=",
+        "owner": "well-typed",
+        "repo": "libclang",
+        "rev": "1054474fae403bfb52c7919680cac03d3d3d4237",
+        "type": "github"
+      },
+      "original": {
+        "owner": "well-typed",
+        "repo": "libclang",
+        "rev": "1054474fae403bfb52c7919680cac03d3d3d4237",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1774386573,
@@ -78,6 +119,7 @@
         "flake-parts": "flake-parts",
         "git-hooks-nix": "git-hooks-nix",
         "haskell-flake": "haskell-flake",
+        "hs-bindgen": "hs-bindgen",
         "nixpkgs": "nixpkgs",
         "treefmt-nix": "treefmt-nix"
       }

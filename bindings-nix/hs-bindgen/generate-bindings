@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+manual_spec_dir="hs-bindgen/specs/manual"
+generated_spec_dir="hs-bindgen/specs/generated"
+out_dir="src"
+
+debug=(-v 2)
+common_select_flags=(
+    --select-except-deprecated
+)
+common_module_flags=(
+    --omit-field-prefixes
+    --post-qualified-imports
+    --hs-output-dir "$out_dir"
+    --create-output-dirs
+    --overwrite-files
+)
+
+prepare() {
+    mkdir -p "$generated_spec_dir"
+}
+
+call_hs_bindgen() {
+    hs-bindgen-cli preprocess "${header}" \
+        "${debug[@]}" \
+        "${common_select_flags[@]}" "${select_flags[@]}" \
+        "${common_module_flags[@]}" "${module_flags[@]}" \
+        "${binding_specs_flags[@]}"
+}
+
+nix_api_util() {
+    local header="nix_api_util.h"
+
+    local select_flags=(
+    )
+
+    local module_flags=(
+        --unique-id tech.linj.hs-bindgen.nix_api_util
+        --module Generated.Lowlevel.Nix.Api.Util
+    )
+
+    local binding_specs_flags=(
+        --gen-binding-spec "$generated_spec_dir"/NixApiUtil.yaml
+    )
+
+    call_hs_bindgen
+}
+
+nix_api_store() {
+    local header="nix_api_store.h"
+
+    local select_flags=(
+    )
+
+    local module_flags=(
+        --unique-id tech.linj.hs-bindgen.nix_api_store
+        --module Generated.Lowlevel.Nix.Api.Store
+    )
+
+    local binding_specs_flags=(
+        --external-binding-spec "$generated_spec_dir"/NixApiUtil.yaml
+        --gen-binding-spec "$generated_spec_dir"/NixApiStore.yaml
+    )
+
+    call_hs_bindgen
+}
+
+nix_api_value() {
+    local header="nix_api_value.h"
+
+    local select_flags=(
+    )
+
+    local module_flags=(
+        --unique-id tech.linj.hs-bindgen.nix_api_value
+        --module Generated.Lowlevel.Nix.Api.Value
+    )
+
+    local binding_specs_flags=(
+        --external-binding-spec "$manual_spec_dir"/NixApiOpaqueTypes.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiUtil.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiStore.yaml
+        --gen-binding-spec "$generated_spec_dir"/NixApiValue.yaml
+    )
+
+    call_hs_bindgen
+}
+
+nix_api_expr() {
+    local header="nix_api_expr.h"
+
+    local select_flags=(
+    )
+
+    local module_flags=(
+        --unique-id tech.linj.hs-bindgen.nix_api_expr
+        --module Generated.Lowlevel.Nix.Api.Expr
+    )
+
+    local binding_specs_flags=(
+        --external-binding-spec "$manual_spec_dir"/NixApiOpaqueTypes.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiUtil.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiStore.yaml
+        --gen-binding-spec "$generated_spec_dir"/NixApiExpr.yaml
+    )
+
+    call_hs_bindgen
+}
+
+nix_api_external() {
+    local header="nix_api_external.h"
+
+    local select_flags=(
+    )
+
+    local module_flags=(
+        --unique-id tech.linj.hs-bindgen.nix_api_external
+        --module Generated.Lowlevel.Nix.Api.External
+    )
+
+    local binding_specs_flags=(
+        --external-binding-spec "$manual_spec_dir"/NixApiOpaqueTypes.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiExpr.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiUtil.yaml
+        --external-binding-spec "$generated_spec_dir"/NixApiValue.yaml
+        --gen-binding-spec "$generated_spec_dir"/NixApiExternal.yaml
+    )
+
+    call_hs_bindgen
+}
+
+# update exposed-modules in .cabal file
+# no-op if we are in "nix build"
+update_cabal_file_when_needed() {
+    cabal-gild --io bindings-nix.cabal || true
+}
+
+# nix-util-c / libutil-c
+nix_api_util
+# nix-store-c / libstore-c
+nix_api_store
+# nix-expr-c / libexpr-c
+nix_api_value
+nix_api_expr
+nix_api_external
+
+update_cabal_file_when_needed

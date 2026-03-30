@@ -18,17 +18,19 @@
         }:
         {
           projectRoot = lib.fileset.toSource {
-            root = ../.;
+            root = ../..;
             fileset = lib.fileset.unions [
-              ../app
-              ../src
-              ../test
-              ../nix2deb.cabal
-              ../cabal.project
+              ../../app
+              ../../src
+              ../../test
+              ../../nix2deb.cabal
+              ../../cabal.project
 
-              ../CHANGELOG.md
-              ../LICENSE
-              ../README.md
+              ../../CHANGELOG.md
+              ../../LICENSE
+              ../../README.md
+
+              ../../bindings-nix
             ];
           };
           settings = {
@@ -53,6 +55,18 @@
                       }"
                     '';
                 }) pkg;
+            };
+            bindings-nix = {
+              # TODO enable it by change haskell-flake and/or hs-bindgen
+              buildFromSdist = false; # otherwise, generateBindings from hs-bindgen fails
+              custom =
+                pkg:
+                pkg.override {
+                  nix = pkgs.nix; # we do not want haskellPackages.nix
+                }
+                # TODO upstream generateBindings to haskell-flake so that
+                # we can move generateBindings into ./hs-bindgen.nix from this `custom`
+                |> pkgs.haskell.lib.compose.generateBindings ../../bindings-nix/hs-bindgen/generate-bindings;
             };
           };
           devShell.tools = hpkgs: {
