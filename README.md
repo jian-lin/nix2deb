@@ -20,7 +20,7 @@ dpkg-deb --info test-exe.deb
 dpkg-deb --contents test-exe.deb
 ```
 
-To test the generated package, copy it to a Ubuntu system and run the following commands:
+To test the generated package, copy it to Ubuntu and run the following commands:
 
 ```bash
 # install
