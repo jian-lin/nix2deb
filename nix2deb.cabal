@@ -23,11 +23,10 @@ common defaults
     NoImplicitPrelude
     OverloadedStrings
 
-common warnings
   ghc-options: -Wall
 
 library
-  import: defaults, warnings
+  import: defaults
   exposed-modules:
     Nix2Deb
     Nix2Deb.App
@@ -60,7 +59,7 @@ library
   default-language: GHC2021
 
 executable nix2deb
-  import: defaults, warnings
+  import: defaults
   main-is: Main.hs
   other-modules:
     Main.Cli
@@ -76,7 +75,7 @@ executable nix2deb
   ghc-options: -threaded
 
 test-suite nix2deb-test
-  import: defaults, warnings
+  import: defaults
   default-language: GHC2021
   type: exitcode-stdio-1.0
   hs-source-dirs: test
