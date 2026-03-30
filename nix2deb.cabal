@@ -17,10 +17,9 @@ common defaults
     co-log ^>=0.6.1.2 || ^>=0.7.0.0,
     relude ^>=1.2.2.0,
 
-  default-language: GHC2021
+  default-language: GHC2024
   default-extensions:
     BlockArguments
-    DerivingStrategies
     NoImplicitPrelude
     OverloadedStrings
 
