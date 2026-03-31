@@ -27,6 +27,7 @@ common defaults
 
 library
   import: defaults
+  hs-source-dirs: src
   exposed-modules:
     Nix2Deb
     Nix2Deb.App
@@ -55,10 +56,9 @@ library
     unliftio ^>=0.2.25.1,
     unordered-containers ^>=0.2.20,
 
-  hs-source-dirs: src
-
 executable nix2deb
   import: defaults
+  hs-source-dirs: app
   main-is: Main.hs
   other-modules:
     Main.Cli
@@ -69,7 +69,6 @@ executable nix2deb
     optparse-applicative ^>=0.18.1.0,
     uncaught-exception ^>=0.1.0,
 
-  hs-source-dirs: app
   ghc-options: -threaded
 
 test-suite nix2deb-test
