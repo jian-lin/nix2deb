@@ -5,3 +5,5 @@ packages:
 -- https://github.com/srid/haskell-flake/issues/307
 tests: True
 benchmarks: True
+-- only use packages provided by nix
+active-repositories: :none
