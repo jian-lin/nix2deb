@@ -28,6 +28,7 @@ common defaults
 library
   import: defaults
   hs-source-dirs: src
+  -- cabal-gild: discover src
   exposed-modules:
     Nix2Deb
     Nix2Deb.App
