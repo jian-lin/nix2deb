@@ -59,6 +59,11 @@
             inherit (hpkgs) cabal-gild; # needed by HLS
           };
           autoWire = builtins.filter (attr: attr != "devShells") options.autoWire.default;
+          # ghc 9.10 has bad HLS support: for example, hlint is broken
+          basePackages =
+            assert lib.assertMsg (lib.versionOlder pkgs.haskellPackages.ghc.version "9.12")
+              "remove basePackages config, use the default pkgs.haskellPackages";
+            pkgs.haskell.packages.ghc912;
         };
 
       packages.default = config.packages.nix2deb;

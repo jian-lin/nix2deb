@@ -13,7 +13,7 @@ extra-doc-files: CHANGELOG.md
 
 common defaults
   build-depends:
-    base ^>=4.19.2.0 || ^>=4.20.2.0,
+    base ^>=4.19.2.0 || ^>=4.20.2.0 || ^>=4.21.0.0,
     co-log ^>=0.6.1.2 || ^>=0.7.0.0,
     relude ^>=1.2.2.0,
 
@@ -52,7 +52,7 @@ library
     scalpel ^>=0.6.2.2,
     string-interpolate ^>=0.3.4.0,
     tagsoup ^>=0.14.8,
-    template-haskell ^>=2.21.0.0 || ^>=2.22.0.0,
+    template-haskell ^>=2.21.0.0 || ^>=2.22.0.0 || ^>=2.23.0.0,
     typed-process ^>=0.2.12.0,
     unliftio ^>=0.2.25.1,
     unordered-containers ^>=0.2.20,
