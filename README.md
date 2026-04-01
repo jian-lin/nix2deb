@@ -1,9 +1,10 @@
 # nix2deb
 
-Convert a Nix package to a deb package using other deb packages as dependencies.
+Convert a [Nix][] package to a deb package using other deb packages as dependencies.
 
 In other words, like [nix-bundle][], but with its [#93][nix-bundle-93] fixed.
 
+[nix]: https://nixos.org/download/#download-nix
 [nix-bundle]: https://github.com/nix-community/nix-bundle
 [nix-bundle-93]: https://github.com/nix-community/nix-bundle/issues/93
 
@@ -46,13 +47,11 @@ nix run github:jian-lin/nix2deb -- --help
 
 ## Development
 
-Enter the development environment powered by [Nix][nix]:
+Enter the development environment:
 
 ```bash
 nix develop
 ```
-
-[nix]: https://nixos.org/download/#download-nix
 
 ## License
 
