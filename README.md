@@ -9,7 +9,7 @@ In other words, like [nix-bundle][], but with its [#93][nix-bundle-93] fixed.
 
 ## Usage
 
-Run this command to generate a test deb package.
+Generate a test deb package:
 
 ```bash
 nix run github:jian-lin/nix2deb -- \
@@ -18,14 +18,14 @@ nix run github:jian-lin/nix2deb -- \
   $(nix build github:jian-lin/nix2deb#testExe --print-out-paths --no-link)
 ```
 
-You can inspect the generated deb package using `dpkg-deb` command.
+Optionally, inspect the generated deb package using `dpkg-deb` command:
 
 ```bash
 dpkg-deb --info test-exe.deb
 dpkg-deb --contents test-exe.deb
 ```
 
-To test the generated package, copy it to Ubuntu and run the following commands:
+Test the generated package by copying it to Ubuntu and running these commands:
 
 ```bash
 # install
@@ -46,15 +46,13 @@ nix run github:jian-lin/nix2deb -- --help
 
 ## Development
 
-We use [Nix][nix] to provide the development environment.
-
-[nix]: https://nixos.org/download/#download-nix
-
-Enter the development environment:
+Enter the development environment powered by [Nix][nix]:
 
 ```bash
 nix develop
 ```
+
+[nix]: https://nixos.org/download/#download-nix
 
 ## License
 
