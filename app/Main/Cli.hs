@@ -62,7 +62,7 @@ suiteParser =
     ( O.long "suite"
         <> O.short 's'
         <> O.metavar "CODENAME"
-        <> O.help "Version of the Ubuntu system such as plucky"
+        <> O.help "Version of the Ubuntu system such as noble"
     )
 
 archParser :: Parser DebArch

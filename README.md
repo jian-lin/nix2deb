@@ -15,7 +15,7 @@ Generate a test deb package:
 ```bash
 nix run github:jian-lin/nix2deb -- \
   --nix-installable github:jian-lin/nix2deb#testExe \
-  --suite plucky \
+  --suite noble \
   $(nix build github:jian-lin/nix2deb#testExe --print-out-paths --no-link)
 ```
 
