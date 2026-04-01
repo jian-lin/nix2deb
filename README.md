@@ -44,6 +44,18 @@ Run `nix2deb` with `--help` to see the manual:
 nix run github:jian-lin/nix2deb -- --help
 ```
 
+## Development
+
+We use [Nix][nix] to provide the development environment.
+
+[nix]: https://nixos.org/download/#download-nix
+
+Enter the development environment:
+
+```bash
+nix develop
+```
+
 ## License
 
 MIT
