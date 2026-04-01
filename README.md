@@ -7,7 +7,7 @@ In other words, like [nix-bundle][], but with its [#93][nix-bundle-93] fixed.
 [nix-bundle]: https://github.com/nix-community/nix-bundle
 [nix-bundle-93]: https://github.com/nix-community/nix-bundle/issues/93
 
-## Example usage
+## Usage
 
 Run this command to generate a test deb package.
 
