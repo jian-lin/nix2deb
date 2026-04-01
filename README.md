@@ -1,4 +1,4 @@
-# Nix2deb
+# nix2deb
 
 Convert a Nix package to a deb package using other deb packages as dependencies.
 
