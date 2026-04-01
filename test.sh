@@ -30,7 +30,7 @@ else
 fi
 
 build_nix2deb() {
-    nix build .# --print-out-paths --no-link
+    nix build .# --print-out-paths --no-link -L
 }
 
 download_rootfs() {
