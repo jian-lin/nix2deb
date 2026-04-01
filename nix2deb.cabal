@@ -9,7 +9,9 @@ author: Lin Jian
 maintainer: me@linj.tech
 category: Nix, Debian, Distribution
 build-type: Simple
-extra-doc-files: CHANGELOG.md
+extra-doc-files:
+  CHANGELOG.md
+  README.md
 
 common defaults
   build-depends:
