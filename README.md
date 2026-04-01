@@ -2,6 +2,11 @@
 
 Convert a Nix package to a deb package using other deb packages as dependencies.
 
+In other words, like [nix-bundle][], but with its [#93][nix-bundle-93] fixed.
+
+[nix-bundle]: https://github.com/nix-community/nix-bundle
+[nix-bundle-93]: https://github.com/nix-community/nix-bundle/issues/93
+
 ## Example usage
 
 Run this command to generate a test deb package.
