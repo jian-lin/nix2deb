@@ -16,22 +16,27 @@
           pkgs,
           ...
         }:
+        let
+          rootPath = ../..;
+        in
         {
           projectRoot = lib.fileset.toSource {
-            root = ../..;
-            fileset = lib.fileset.unions [
-              ../../app
-              ../../src
-              ../../test
-              ../../nix2deb.cabal
-              ../../cabal.project
+            root = rootPath;
+            fileset =
+              lib.fileset.unions
+              <| map (lib.path.append rootPath) [
+                "app"
+                "src"
+                "test"
+                "nix2deb.cabal"
+                "cabal.project"
 
-              ../../CHANGELOG.md
-              ../../LICENSE
-              ../../README.md
+                "CHANGELOG.md"
+                "LICENSE"
+                "README.md"
 
-              ../../bindings-nix
-            ];
+                "bindings-nix"
+              ];
           };
           settings = {
             nix2deb = {
@@ -66,7 +71,9 @@
                 }
                 # TODO upstream generateBindings to haskell-flake so that
                 # we can move generateBindings into ./hs-bindgen.nix from this `custom`
-                |> pkgs.haskell.lib.compose.generateBindings ../../bindings-nix/hs-bindgen/generate-bindings;
+                |> pkgs.haskell.lib.compose.generateBindings (
+                  lib.path.append rootPath "bindings-nix/hs-bindgen/generate-bindings"
+                );
             };
           };
           devShell.tools = hpkgs: {
