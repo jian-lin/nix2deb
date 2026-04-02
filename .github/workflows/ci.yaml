@@ -8,6 +8,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v31
+        with:
+          # not support appending experimental features via extra-experimental-features
+          # so we also have to list default values
+          extra_nix_config: |
+            experimental-features = nix-command flakes pipe-operators
       - name: install systemd-nspawn
         run: |
           sudo apt update
